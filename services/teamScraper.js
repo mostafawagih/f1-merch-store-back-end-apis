@@ -3,7 +3,7 @@ const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 
 puppeteer.use(StealthPlugin());
 
-async function scrapeTeamStore(baseUrl) {
+async function scrapeTeamStore(baseUrl, limit = 10) {
   const browser = await puppeteer.launch({
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
@@ -18,7 +18,7 @@ async function scrapeTeamStore(baseUrl) {
     );
 
     let currentPage = 1;
-    while (true) {
+    while (allProducts.length < limit) {
       const pagedUrl = `${baseUrl}?pageSize=72&pageNumber=${currentPage}`;
       console.log(`🔄 Fetching page ${currentPage} for ${baseUrl}`);
       await page.goto(pagedUrl, { waitUntil: "networkidle2", timeout: 60000 });
@@ -47,7 +47,8 @@ async function scrapeTeamStore(baseUrl) {
         break;
       }
 
-      allProducts.push(...products);
+      const remaining = limit - allProducts.length;
+      allProducts.push(...products.slice(0, remaining));
       currentPage++;
     }
 

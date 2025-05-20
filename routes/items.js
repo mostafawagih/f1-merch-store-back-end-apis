@@ -1,36 +1,26 @@
 const express = require("express");
 const { scrapeTeamStore } = require("../services/teamScraper.js");
+const { TEAMS_URLS } = require("../constants.js");
 
 const router = express.Router();
-
-const teamUrls = {
-  mercedes:
-    "https://f1store.formula1.com/en/mercedes-amg-petronas-f1-team/t-10977535+z-9539237-2587371245",
-  ferrari:
-    "https://f1store.formula1.com/en/scuderia-ferrari/t-76758670+z-71034-984427031",
-};
-
-router.get("/", async (req, res) => {
-  const result = {};
-
-  await Promise.all(
-    Object.entries(teamUrls).map(async ([team, url]) => {
-      const products = await scrapeTeamStore(url);
-      result[team] = products;
-    })
-  );
-
-  res.json(result);
-});
 
 router.get("/team/:team", async (req, res) => {
   const team = req.params.team.toLowerCase();
 
-  if (!teamUrls[team]) {
+  if (team === "all-teams") {
+    await Promise.all(
+      Object.entries(TEAMS_URLS).map(async ([team, url]) => {
+        const products = await scrapeTeamStore(url);
+        res.json(products);
+      })
+    );
+  }
+
+  if (!TEAMS_URLS[team]) {
     return res.status(400).json({ error: "Unsupported team" });
   }
 
-  const products = await scrapeTeamStore(teamUrls[team]);
+  const products = await scrapeTeamStore(TEAMS_URLS[team]);
   res.json(products);
 });
 
@@ -43,8 +33,8 @@ router.get("/search", async (req, res) => {
   const result = {};
 
   const targets = team
-    ? { [team.toLowerCase()]: teamUrls[team.toLowerCase()] }
-    : teamUrls;
+    ? { [team.toLowerCase()]: TEAMS_URLS[team.toLowerCase()] }
+    : TEAMS_URLS;
 
   await Promise.all(
     Object.entries(targets).map(async ([teamName, url]) => {
