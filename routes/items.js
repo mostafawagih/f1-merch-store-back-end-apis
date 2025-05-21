@@ -4,24 +4,26 @@ const { TEAMS_URLS } = require("../constants.js");
 
 const router = express.Router();
 
-router.get("/team/:team", async (req, res) => {
-  const team = req.params.team.toLowerCase();
+router.get("/team", async (req, res) => {
+  const team = req.query.team.toLowerCase();
+  const limit = parseInt(req.query.limit) || 10;
+  const page = parseInt(req.query.page) || 1;
 
-  if (team === "all-teams") {
-    await Promise.all(
-      Object.entries(TEAMS_URLS).map(async ([team, url]) => {
-        const products = await scrapeTeamStore(url);
-        res.json(products);
-      })
-    );
-  }
+  // if (team === "all-teams") {
+  //   await Promise.all(
+  //     Object.entries(TEAMS_URLS).map(async ([team, url]) => {
+  //       const result = await scrapeTeamStore(url, page, limit);
+  //       res.json(result);
+  //     })
+  //   );
+  // }
 
   if (!TEAMS_URLS[team]) {
     return res.status(400).json({ error: "Unsupported team" });
   }
 
-  const products = await scrapeTeamStore(TEAMS_URLS[team]);
-  res.json(products);
+  const result = await scrapeTeamStore(TEAMS_URLS[team], page, limit);
+  res.json(result);
 });
 
 router.get("/search", async (req, res) => {

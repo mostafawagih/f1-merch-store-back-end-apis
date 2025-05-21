@@ -5,6 +5,8 @@ const TEAMS_URLS = {
     "https://f1store.formula1.com/en/scuderia-ferrari/t-76758670+z-71034-984427031",
   redbull:
     "https://f1store.formula1.com/en/red-bull-racing/t-98080827+z-867377-1141549316",
+  "all-teams":
+    "https://f1store.formula1.com/en/men/ga-45+z-811776529-881130140",
 };
 
 module.exports = {
